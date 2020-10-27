@@ -1,0 +1,42 @@
+  ranking<- function(outcome, num = "best")
+  {
+    library(example1)
+    library(example2)
+    outcome2 <- read.csv("outcome.csv",
+                         colClasses = "character")
+    if((outcome %in% c("fail1", "fail2",
+                       "fail3")) == FALSE) {
+      stop(print("invalid outcome"))
+    }
+    if (outcome == "fail1") {
+      colnum <- 11
+    }
+    else if (outcome == "fail2") {
+      colnum <- 17
+    }
+    else {
+      colnum <- 23
+    }
+    outcome2[ ,colnum] <- as.numeric(outcome2[ ,colnum])
+    
+    outcome2 = outcome2[!is.na(outcome2[,colnum]),]
+    
+    splited = split(outcome2, outcome2$State)
+    ans = lapply(splited, function(x, num) {
+      x = x[order(x[,colnum], x$Local.Name),]
+      
+      if(class(num) == "character") {
+        if(num == "best") {
+          return (x$Local.Name[1])
+        }
+        else if(num == "worst") {
+          return (x$Local.Name[nrow(x)])
+        }
+      }
+      else {
+        return (x$Local.Name[num])
+      }
+    }, num)
+    
+    return ( data.frame(local=unlist(ans), state=names(ans)) )
+  }
